@@ -1,10 +1,10 @@
-$sourceRgName = "k8s-rg"
-$sourceK8s = "ox-k8s"
-$sourceSub = (Get-AzContext).Subscription.Id
+$sourceRgName = "<source Rg Name>"
+$sourceK8s = "<source k8s name>"
+$sourceSub = "<source sub id>"
 
-$destRgName = "k8s-rg"
-$destK8s = "ox-k8s-2"
-$destSub = $sourceSub
+$destRgName = "<Destination Rg name>"
+$destK8s = "<Destination k8s name>"
+$destSub = "<Destination Sub Id>"
 
 # --------------------------------------------------------------------------
 
