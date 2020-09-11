@@ -8,10 +8,18 @@ $destSub = "<Destination Sub Id>"
 
 # --------------------------------------------------------------------------
 
+if ((Get-AzContext).Subscription.Id -eq $sourceSub) {
+    $null = Select-AzSubscription -SubscriptionId $sourceSub
+}
+
 $alertRules = Get-AzMetricAlertRuleV2 -ResourceGroupName $sourceRgName | Where-Object { $_.TargetResourceId.EndsWith($sourceK8s) }
 
+if ($destSub -ne $sourceSub) {
+    $null = Select-AzSubscription -SubscriptionId $destSub
+}
+
 foreach ($alertRule in $alertRules) {
-    # New-AzMetricAlertRuleV2Criteria 
+    
     $newTargetResourceId = $alertRule.TargetResourceId.
         Replace($sourceRgName, $destRgName).
         Replace($sourceK8s, $destK8s).
@@ -27,13 +35,16 @@ foreach ($alertRule in $alertRules) {
         continue
     }
 
-    Add-AzMetricAlertRulev2 -ResourceGroupName $destRgName `
-                            -Name $newAlertName `
-                            -WindowSize $alertRule.WindowSize `
-                            -Frequency $alertRule.EvaluationFrequency `
-                            -Condition $alertRule.Criteria `
-                            -Severity $alertRule.Severity `
-                            -TargetResourceId $newTargetResourceId `
-                            -Description $alertRule.Description `
-                            -Verbose
+    $alertParams = @{
+        ResourceGroupName = $destRgName
+        Name = $newAlertName
+        WindowSize = $alertRule.WindowSize
+        Frequency = $alertRule.EvaluationFrequency
+        Condition = $alertRule.Criteria
+        Severity = $alertRule.Severity
+        TargetResourceId = $newTargetResourceId
+        Description = $alertRule.Description
+    }
+
+    Add-AzMetricAlertRulev2 -Verbose @alertParams
 }
